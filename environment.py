@@ -2,48 +2,48 @@ import numpy as np
 
 
 class State:
-    def __init__(self, size, n_agents, init_position, left_rewards, right_rewards):
+    """
+    Creates an object to keep track of what is happening in the environment (agents positions)
+    """
+    def __init__(self, size, n_agents, init_position):
         """
         :param size: size (length) of the gridworld (int)
         :param n_agents: number of agents (int)
-        :param init_position: starting position of all agents (int)
-        :param left_rewards: agent rewards for reaching the left edge (array)
-        :param right_rewards: agent rewards for reaching the right edge (array)
+        :param init_position: starting position of all agents, counting from 0 (int)
         """
         self.size = size
-        self.grid = np.zeros(size)
+        self.init_position = init_position
         self.n_agents = n_agents
         self.state = np.full((n_agents, 1), init_position)
-        self.left_rewards = left_rewards
-        self.right_rewards = right_rewards
-        self.is_end = False
-
-    def compute_reward(self):
-        if np.array_equal(self.state, np.zeros(self.state.shape)):
-            return self.left_rewards
-        elif np.array_equal(self.state, np.full(self.state.shape, self.size-1)):
-            return self.right_rewards
-        return 0
 
     def next_state(self, actions):
-        next_state = self.state
-        if np.all(actions == actions[0]):
+        """
+        :param actions: list of actions for each agent in order 1,2,...,n for all agents (list)
+        all actions must be identical or all agents will do nothing
+        :return: next global state (np array)
+        """
+        if all(elements == actions[0] for elements in actions):
             if actions[0] == "left":
-                next_state = self.state - np.full(actions.shape, 1)
+                next_state = self.state - np.full(self.state.shape, 1)
             if actions[0] == "right":
-                next_state = self.state + np.full(actions.shape, 1)
+                next_state = self.state + np.full(self.state.shape, 1)
 
             if 0 <= next_state[0] <= (self.size - 1):
-                return next_state
-            return self.state
+                self.state = next_state
+                return self.state
+
         return self.state
 
-    def is_end(self):
-        if (self.state[0] == 0) or (self.state[0] == self.size - 1):
-            self.is_end = True
+    def reset(self):
+        """
+        resets global state to the initial state
+        """
+        self.state = np.full((self.n_agents, 1), self.init_position)
 
-    def get_state(self):
-        return self.state
-
-    def get_size(self):
-        return self.size
+    def show_grid(self):
+        """
+        prints the position of all agents in the grid
+        """
+        grid = np.zeros((self.n_agents, self.size))
+        grid[:, self.state] = 1
+        print(grid)

@@ -1,37 +1,19 @@
-import numpy as np
 from environment import State
 from agent import Agent
-import sys
-"""
-environment needs to reset
-environment needs to "step" with action, if actions are the same
-environment needs to sample trajectories
-policy i needs action i and global state
 
-for each iteration t = 1.....T
-    for each agent n = 1.....N
+size = 5            # size of the grid
+n_agents = 2        # number of agents
+init_position = 2   # initial position of agents in the grid
 
+state = State(size, n_agents, init_position)
+agents = [Agent(i) for i in range(n_agents)]    # create a list of "agent" objects
 
-"""
-
-size = 3
-n_agents = 2
-init_position = 1
-left_rewards = np.array([[10], [2]])
-right_rewards = np.array([[1], [3]])
-
-state = State(size, n_agents, init_position, left_rewards, right_rewards)
-agents = Agent(n_agents, state)
-
-agents.state_values[:, [0]] = left_rewards
-agents.state_values[:, [size - 1]] = right_rewards
-
-print(agents.get_state_values())
-
-i = 1
-while i < 3:
-    agents.value_iteratation(state.get_state()[0])
-    state.next_state(agents.choose_action(state.get_state()[0]))
-    print(agents.get_state_values())
-    print(agents.actions)
-    i += 1
+num_iters = 10
+state.show_grid()
+for iter in range(num_iters):
+    actions = []
+    for agent in agents:
+        actions.append(agent.choose_action())
+    print(actions)
+    state.next_state(actions)
+    state.show_grid()

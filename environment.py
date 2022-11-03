@@ -22,10 +22,12 @@ class State:
         all actions must be identical or all agents will do nothing
         :return: next global state (np array)
         """
+
+        next_state = self.state
         if all(elements == actions[0] for elements in actions):
-            if actions[0] == "left":
+            if actions[0] == "l":
                 next_state = self.state - np.full(self.state.shape, 1)
-            if actions[0] == "right":
+            if actions[0] == "r":
                 next_state = self.state + np.full(self.state.shape, 1)
 
             if 0 <= next_state[0] <= (self.size - 1):
@@ -47,3 +49,6 @@ class State:
         grid = np.zeros((self.n_agents, self.size))
         grid[:, self.state] = 1
         print(grid)
+
+    def get_state(self):
+        return self.state.tolist()

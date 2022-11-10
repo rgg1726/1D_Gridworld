@@ -3,25 +3,26 @@ import numpy as np
 
 class State:
     """
-    Creates an object to keep track of what is happening in the environment (agents positions)
+    Creates an object to keep track of what is happening in the environment (agent positions)
     """
     def __init__(self, size, n_agents, init_position, rewards):
         """
         :param size: size (length) of the gridworld (int)
         :param n_agents: number of agents (int)
         :param init_position: starting position of all agents, counting from 0 (int)
+        :param rewards: rewards for each agent (dict)
         """
         self.size = size
         self.init_position = init_position
         self.n_agents = n_agents
-        self.state = np.full((n_agents, 1), init_position)
         self.rewards = rewards
+        self.state = np.full((n_agents, 1), init_position)  # column vector with position of each agent
 
     def next_state(self, actions):
         """
         :param actions: list of actions for each agent in order 1,2,...,n for all agents (list)
-        all actions must be identical or all agents will do nothing
-        :return: next global state (np array)
+        checks if all agent actions are the same and computes the next state
+        :return: next global state (list)
         """
 
         next_state = self.state
@@ -43,6 +44,9 @@ class State:
         self.state = np.full((self.n_agents, 1), self.init_position)
 
     def give_reward(self):
+        """
+        :return: the rewards for each agent at the current state (list)
+        """
         if self.state[0] == 0:
             return self.rewards["left"]
         if self.state[0] == self.size - 1:
@@ -51,6 +55,9 @@ class State:
             return [0 for i in range(self.n_agents)]
 
     def is_end(self):
+        """
+        checks if the agents are at the end of the grid and resets
+        """
         if self.state[0] == 0 or self.state[0] == self.size - 1:
             self.reset()
 
@@ -63,4 +70,7 @@ class State:
         print(grid)
 
     def get_state(self):
+        """
+        :return: the current state of all agents (list)
+        """
         return self.state.flatten().tolist()

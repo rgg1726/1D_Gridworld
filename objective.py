@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.special import logsumexp
 
 
 class Solver:
@@ -15,25 +16,23 @@ class Solver:
         self.gamma = gamma
         self.alpha = alpha
 
-    def value(self, s_prime, pi, q_table):
-        value = -1 / self.alpha * np.log(np.sum(pi[:, s_prime] * np.exp(-self.alpha * q_table[:, s_prime])))
+    def value(self, s, pi, q_table):
+
+        value = 1 / self.alpha * logsumexp(self.alpha * q_table[:, s] + np.log(pi[:, s]), axis=0)
 
         return value
 
-    def delta_q(self, c, s_prime, q, pi, q_table):
-        delta_q = c + self.gamma * self.value(s_prime, pi, q_table) - q
+    def delta_q(self, r, s_prime, q, pi, q_table):
+        delta_q = r + self.gamma * self.value(s_prime, pi, q_table) - q
 
         return delta_q
 
-    def loss(self, q, results, q_table, pi):
+    def loss(self, q, results, q_table, pi, v0, size):
         L = len(results)
-        s_prime = [item[0] for item in results]
-        c = [item[1] for item in results]
+        s_prime = [item[2] for item in results]
+        r = [item[3] for item in results]
 
-        inside_sum = 0
-        for l in range(L):
-            inside_sum += np.exp(-self.eta * self.delta_q(c[l], s_prime[l], q[l], pi, q_table))
+        loss = 1 / self.eta * logsumexp(self.eta * self.delta_q(r, s_prime, q, pi, q_table) + np.log(1 / L)) + \
+            (1 - self.gamma) * np.dot(v0, self.value(np.arange(size), pi, q_table))
 
-        loss = -1 / self.eta * np.log(1 / L * inside_sum) + (1 - self.gamma)
-
-        return -loss
+        return loss

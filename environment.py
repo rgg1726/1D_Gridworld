@@ -5,7 +5,7 @@ class State:
     """
     Creates an object to keep track of what is happening in the environment (agent positions)
     """
-    def __init__(self, size, n_agents, init_position, rewards):
+    def __init__(self, size, n_agents, init_state_distribution, rewards):
         """
         :param size: size (length) of the gridworld (int)
         :param n_agents: number of agents (int)
@@ -13,10 +13,10 @@ class State:
         :param rewards: rewards for each agent (dict)
         """
         self.size = size
-        self.init_position = init_position
+        self.init_state_distribution = init_state_distribution
         self.n_agents = n_agents
         self.rewards = rewards
-        self.state = np.full((n_agents, 1), init_position)  # column vector with position of each agent
+        self.state = np.full((n_agents, 1), np.random.choice(size, p=init_state_distribution))
 
     def next_state(self, actions):
         """
@@ -41,7 +41,7 @@ class State:
         """
         resets global state to the initial state
         """
-        self.state = np.full((self.n_agents, 1), self.init_position)
+        self.state = np.full((self.n_agents, 1), np.random.choice(self.size, p=self.init_state_distribution))
 
     def give_reward(self):
         """

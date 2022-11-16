@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.special import softmax
 
 
 class Agent(object):
@@ -33,3 +34,9 @@ class Agent(object):
                                             p=self.policy_distribution[:, i, state[i]].flatten()))
 
         return actions
+
+    def policy_update(self, q_i, results, alpha):
+        s = [item[0] for item in results]
+        a = [item[1] for item in results]
+
+        self.policy_distribution[a, self.id, s] = softmax(alpha * q_i + np.log(self.policy_distribution[a, self.id, s]), axis=0)

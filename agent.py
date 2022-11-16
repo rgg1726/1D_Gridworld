@@ -15,6 +15,7 @@ class Agent(object):
         """
         self.id = id
         self.actions = actions
+        self.n_states = n_states
 
         self.policy_distribution = np.full((len(actions), n_agents, n_states), 1 / len(actions))
         self.actions_select = np.empty((len(actions), n_agents, n_states), dtype=str)
@@ -39,4 +40,8 @@ class Agent(object):
         s = [item[0] for item in results]
         a = [item[1] for item in results]
 
-        self.policy_distribution[a, self.id, s] = softmax(alpha * q_i + np.log(self.policy_distribution[a, self.id, s]), axis=0)
+        q_i = q_i.reshape(-1, self.n_states)
+
+        self.q_values = q_i
+
+        self.policy_distribution[:, self.id, np.arange(5)] = softmax(alpha * q_i[:, np.arange(5)] + np.log(self.policy_distribution[:, self.id, np.arange(5)]), axis=0)

@@ -5,43 +5,35 @@ class State:
     """
     Creates an object to keep track of what is happening in the environment (agent positions)
     """
-    def __init__(self, size, n_agents, init_state_distribution, rewards):
+    def __init__(self, n_states, n_agents, init_state_distribution, rewards):
         """
-        :param size: size (length) of the gridworld (int)
+        :param n_states: size (length) of the gridworld (int)
         :param n_agents: number of agents (int)
-        :param init_position: starting position of all agents, counting from 0 (int)
+        :param init_state_distribution: initial state distribution of agents (np array)
         :param rewards: rewards for each agent (dict)
         """
-        self.size = size
+        self.n_states = n_states
         self.init_state_distribution = init_state_distribution
         self.n_agents = n_agents
         self.rewards = rewards
-        self.state = np.full((n_agents, 1), np.random.choice(size, p=init_state_distribution))
+        self.state = np.full((n_agents, 1), np.random.choice(n_states, p=init_state_distribution), dtype=np.int64)
 
     def next_state(self, actions):
         """
-        :param actions: list of actions for each agent in order 1,2,...,n for all agents (list)
+        :param actions: actions for each agent (-1, +1) (np array)
         checks if all agent actions are the same and computes the next state
-        :return: next global state (list)
+        :return: next global state (np array)
         """
+        if np.all(actions == actions[0]):
+            self.state = self.state + actions
 
-        next_state = self.state
-        if all(elements == actions[0] for elements in actions):
-            if actions[0] == "l":
-                next_state = self.state - np.full(self.state.shape, 1)
-            if actions[0] == "r":
-                next_state = self.state + np.full(self.state.shape, 1)
-
-            if 0 <= next_state[0] <= (self.size - 1):
-                self.state = next_state
-
-        return self.state.flatten().tolist()
+        return self.state
 
     def reset(self):
         """
         resets global state to the initial state
         """
-        self.state = np.full((self.n_agents, 1), np.random.choice(self.size, p=self.init_state_distribution))
+        self.state = np.full((self.n_agents, 1), np.random.choice(self.n_states, p=self.init_state_distribution), dtype=np.int64)
 
     def give_reward(self):
         """
@@ -49,7 +41,7 @@ class State:
         """
         if self.state[0] == 0:
             return self.rewards["left"]
-        if self.state[0] == self.size - 1:
+        if self.state[0] == self.n_states - 1:
             return self.rewards["right"]
         else:
             return [0 for i in range(self.n_agents)]
@@ -58,19 +50,19 @@ class State:
         """
         checks if the agents are at the end of the grid and resets
         """
-        if self.state[0] == 0 or self.state[0] == self.size - 1:
+        if self.state[0] == 0 or self.state[0] == self.n_states - 1:
             self.reset()
 
     def show_grid(self):
         """
         prints the position of all agents in the grid
         """
-        grid = np.zeros((self.n_agents, self.size))
+        grid = np.zeros((self.n_agents, self.n_states))
         grid[:, self.state] = 1
         print(grid)
 
     def get_state(self):
         """
-        :return: the current state of all agents (list)
+        :return: the current state of all agents (np array)
         """
-        return self.state.flatten().tolist()
+        return self.state

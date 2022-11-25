@@ -44,7 +44,7 @@ class State:
         if self.state[0] == self.n_states - 1:
             return self.rewards["right"]
         else:
-            return [0 for i in range(self.n_agents)]
+            return [0 for _ in range(self.n_agents)]
 
     def is_end(self):
         """
